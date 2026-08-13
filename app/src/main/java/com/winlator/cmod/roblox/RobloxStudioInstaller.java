@@ -290,8 +290,11 @@ public final class RobloxStudioInstaller {
     }
 
     private void extractPackage(File archive, File destination) throws Exception {
-        String root = destination.getCanonicalPath() + File.separator;
-        if (!destination.isDirectory() && !destination.mkdirs()) throw new IOException("Unable to create package directory");
+        String destinationPath = destination.getCanonicalPath();
+        String root = destinationPath + File.separator;
+        if (destination.exists() && !destination.isDirectory())
+            throw new IOException("Package destination is not a directory: " + destination);
+        if (!destination.exists() && !destination.mkdirs()) throw new IOException("Unable to create package directory");
         try (ZipInputStream zip = new ZipInputStream(new BufferedInputStream(new FileInputStream(archive)))) {
             ZipEntry entry;
             while ((entry = zip.getNextEntry()) != null) {
@@ -299,13 +302,19 @@ public final class RobloxStudioInstaller {
                 String name = entry.getName().replace('\\', '/');
                 File outputFile = new File(destination, name);
                 String outputPath = outputFile.getCanonicalPath();
-                if (!outputPath.equals(destination.getCanonicalPath()) && !outputPath.startsWith(root))
+                if (!outputPath.equals(destinationPath) && !outputPath.startsWith(root))
                     throw new IOException("Unsafe path in package " + archive.getName());
-                if (entry.isDirectory()) {
-                    if (!outputFile.isDirectory() && !outputFile.mkdirs()) throw new IOException("Unable to create package directory");
+                if (entry.isDirectory() || name.endsWith("/")) {
+                    if (outputFile.exists() && !outputFile.isDirectory())
+                        throw new IOException("Package directory conflicts with a file: " + name);
+                    if (!outputFile.exists() && !outputFile.mkdirs()) throw new IOException("Unable to create package directory");
                 } else {
+                    if (outputFile.isDirectory())
+                        throw new IOException("Package file conflicts with a directory: " + name);
                     File parent = outputFile.getParentFile();
-                    if (parent != null && !parent.isDirectory() && !parent.mkdirs())
+                    if (parent != null && parent.exists() && !parent.isDirectory())
+                        throw new IOException("Package parent is not a directory: " + name);
+                    if (parent != null && !parent.exists() && !parent.mkdirs())
                         throw new IOException("Unable to create package directory");
                     try (BufferedOutputStream output = new BufferedOutputStream(new FileOutputStream(outputFile))) {
                         byte[] buffer = new byte[128 * 1024];
