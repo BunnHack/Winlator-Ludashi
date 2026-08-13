@@ -1,7 +1,8 @@
 name: Android CI Bionic
 on:
+  workflow_dispatch:
   push:
-    branches: [ "ludashi-3.1" ]
+    branches: [ "ludashi-3.1", "roblox-studio-android" ]
   pull_request:
     branches: [ "ludashi-3.1" ]
 
