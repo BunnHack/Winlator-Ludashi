@@ -11,6 +11,11 @@
         app:showAsAction="ifRoom" />
 
     <item
+        android:id="@+id/containers_menu_install_roblox"
+        android:title="@string/roblox_studio_install"
+        app:showAsAction="never" />
+
+    <item
         android:icon="@drawable/icon_action_bar_add"
         android:id="@+id/containers_menu_add"
         android:title="@string/add"

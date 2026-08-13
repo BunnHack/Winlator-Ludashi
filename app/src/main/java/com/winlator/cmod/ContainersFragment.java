@@ -42,7 +42,9 @@ import com.winlator.cmod.contentdialog.ContentDialog;
 import com.winlator.cmod.contentdialog.StorageInfoDialog;
 import com.winlator.cmod.core.AppUtils;
 import com.winlator.cmod.core.FileUtils;
+import com.winlator.cmod.core.DownloadProgressDialog;
 import com.winlator.cmod.core.PreloaderDialog;
+import com.winlator.cmod.roblox.RobloxStudioInstaller;
 import com.winlator.cmod.xenvironment.ImageFs;
 
 import java.io.File;
@@ -116,6 +118,10 @@ public class ContainersFragment extends Fragment {
                         .commit();
                 return true;
 
+            case R.id.containers_menu_install_roblox:
+                chooseContainerForRobloxStudio();
+                return true;
+
             case R.id.action_big_picture_mode:
                 toggleBigPictureMode();
                 return true;
@@ -123,6 +129,61 @@ public class ContainersFragment extends Fragment {
             default:
                 return super.onOptionsItemSelected(menuItem);
         }
+    }
+    private void chooseContainerForRobloxStudio() {
+        ArrayList<Container> containers = manager.getContainers();
+        if (containers.isEmpty()) {
+            Toast.makeText(requireContext(), R.string.roblox_studio_needs_container, Toast.LENGTH_LONG).show();
+            return;
+        }
+        String[] names = new String[containers.size()];
+        for (int i = 0; i < containers.size(); i++) names[i] = containers.get(i).getName();
+        new AlertDialog.Builder(requireContext())
+                .setTitle(R.string.roblox_studio_choose_container)
+                .setItems(names, (dialog, which) -> confirmRobloxStudioInstall(containers.get(which)))
+                .setNegativeButton(R.string.cancel, null)
+                .show();
+    }
+
+    private void confirmRobloxStudioInstall(Container container) {
+        new AlertDialog.Builder(requireContext())
+                .setTitle(R.string.roblox_studio_install)
+                .setMessage(R.string.roblox_studio_download_notice)
+                .setPositiveButton(R.string.install, (dialog, which) -> installRobloxStudio(container))
+                .setNegativeButton(R.string.cancel, null)
+                .show();
+    }
+
+    private void installRobloxStudio(Container container) {
+        Activity activity = requireActivity();
+        DownloadProgressDialog progressDialog = new DownloadProgressDialog(activity);
+        final RobloxStudioInstaller[] installerRef = new RobloxStudioInstaller[1];
+        installerRef[0] = new RobloxStudioInstaller(activity, container, new RobloxStudioInstaller.Listener() {
+            @Override
+            public void onProgress(String message, int percent) {
+                progressDialog.setMessage(message);
+                progressDialog.setProgress(percent);
+            }
+
+            @Override
+            public void onComplete(RobloxStudioInstaller.Result result) {
+                progressDialog.close();
+                if (result.success) {
+                    Toast.makeText(activity, getString(R.string.roblox_studio_installed, result.version), Toast.LENGTH_LONG).show();
+                } else if (result.cancelled) {
+                    Toast.makeText(activity, R.string.roblox_studio_cancelled, Toast.LENGTH_SHORT).show();
+                } else {
+                    new AlertDialog.Builder(activity)
+                            .setTitle(R.string.roblox_studio_install_failed)
+                            .setMessage(result.error)
+                            .setPositiveButton(R.string.ok, null)
+                            .show();
+                }
+            }
+        });
+        progressDialog.show(() -> installerRef[0].cancel());
+        progressDialog.setMessage(getString(R.string.roblox_studio_preparing));
+        installerRef[0].start();
     }
 
     private void toggleBigPictureMode() {

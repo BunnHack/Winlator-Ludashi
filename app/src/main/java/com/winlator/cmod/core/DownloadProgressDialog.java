@@ -76,10 +76,15 @@ public class DownloadProgressDialog {
         }
         catch (Exception e) {}
     }
-    
+
     public void setMessage(int textResId) {
-        if (textResId > 0) 
+        if (textResId > 0)
             ((TextView)dialog.findViewById(R.id.TextView)).setText(textResId);
+    }
+
+    public void setMessage(CharSequence message) {
+        if (dialog != null && message != null)
+            ((TextView)dialog.findViewById(R.id.TextView)).setText(message);
     }
 
     public void closeOnUiThread() {

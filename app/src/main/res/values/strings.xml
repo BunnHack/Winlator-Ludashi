@@ -662,4 +662,12 @@ E.g. <b>META</b> for <i>META key</i>, \n
     <string name="install">Install</string>
     <string name="select">Select</string>
     <string name="wine_version_locked_for_existing_container">Wine version is locked for existing containers</string>
+    <string name="roblox_studio_install">Install Roblox Studio</string>
+    <string name="roblox_studio_choose_container">Choose a container for Roblox Studio</string>
+    <string name="roblox_studio_needs_container">Create a 64-bit container before installing Roblox Studio.</string>
+    <string name="roblox_studio_download_notice">Roblox Studio will be downloaded directly from Roblox. The APK does not include or redistribute Roblox files. The download and extracted installation require several gigabytes. Compatibility with Wine is experimental.</string>
+    <string name="roblox_studio_preparing">Preparing Roblox Studio…</string>
+    <string name="roblox_studio_installed">Roblox Studio %1$s installed. Run the container once so Wine can create its Studio shortcut.</string>
+    <string name="roblox_studio_cancelled">Roblox Studio installation cancelled.</string>
+    <string name="roblox_studio_install_failed">Roblox Studio installation failed</string>
 </resources>
